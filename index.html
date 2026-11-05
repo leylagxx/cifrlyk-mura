@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Цифрлық мұра</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Yeseva+One&family=PT+Sans:ital,wght@0,400;0,700;1,400&family=PT+Mono&display=swap" rel="stylesheet">
+<style>
+/* Атлас пен мұражай жапсырмасы: көк жолақ + сырмақ өрнегі, ақ қағаз, жіңішке сызықтар, бұрыштар түзу.
+   Батыл тұс біреу: тақырыптағы өрнек жолағы және топографиялық карта. Қалғаны — тыныш типографика. */
+:root {
+  --paper: #fafaf7;
+  --sheet: #ffffff;
+  --ink: #18242f;
+  --muted: #5d6871;
+  --rule: #d9dcdc;
+  --blue: #1d3e63;      /* көк ту, түнгі дала */
+  --red: #a8322b;       /* сырмақ қызылы */
+  --ochre: #a77a22;     /* мыс, күз даласы */
+  --land: #efeee6;      /* карта жері */
+  --good: #2e6f47; --warn: #9a6216; --bad: #a8322b;
+  --display: "Yeseva One", "PT Serif", Georgia, serif;
+  --body: "PT Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "PT Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10161c; --sheet: #151d25; --ink: #e6e9ea; --muted: #98a3ab; --rule: #2b3640;
+    --blue: #7fa6d1; --red: #e0766d; --ochre: #d7a74c; --land: #18222b;
+    --good: #74c493; --warn: #e2a85c; --bad: #e0766d; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10161c; --sheet: #151d25; --ink: #e6e9ea; --muted: #98a3ab; --rule: #2b3640;
+  --blue: #7fa6d1; --red: #e0766d; --ochre: #d7a74c; --land: #18222b;
+  --good: #74c493; --warn: #e2a85c; --bad: #e0766d; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--paper); color: var(--ink); font: 17px/1.55 var(--body); }
+h1, h2, h3 { font-family: var(--display); font-weight: 400; line-height: 1.15; text-wrap: balance; margin: 0; letter-spacing: .01em; }
+p { margin: 0; }
+button, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+@media (max-width: 480px) { .wrap { padding: 0 16px; } }
+
+/* ---------- бас ---------- */
+.band { background: #1d3e63; color: #f4f1e8; }
+.ornament { height: 22px; background: #1d3e63; border-top: 1px solid #a8322b; border-bottom: 1px solid #a8322b; }
+.ornament svg { display: block; width: 100%; height: 22px; }
+.mast { display: flex; justify-content: space-between; align-items: end; gap: 16px 28px; flex-wrap: wrap; padding: 22px 0 18px; }
+.mast h1 { font-size: clamp(2rem, 5vw, 3.1rem); color: #fff; }
+.mast .sub { font-size: .95rem; color: #c9d3de; margin-top: 4px; }
+.mast .sub b { color: #e9c57a; font-weight: 400; }
+.lvl { display: flex; align-items: center; gap: 10px; font-size: .85rem; color: #c9d3de; }
+.lvl button { background: none; border: 1px solid #50698a; color: #f4f1e8; padding: 4px 11px; font-family: var(--mono); font-size: .85rem; }
+.lvl #levelSeg { display: inline-flex; }
+.lvl button + button { border-left: 0; }
+.lvl button[aria-pressed="true"] { background: #f4f1e8; color: #1d3e63; border-color: #f4f1e8; }
+nav { display: flex; gap: 26px; overflow-x: auto; scrollbar-width: none; padding-bottom: 12px; }
+nav a { flex: none; color: #c9d3de; text-decoration: none; font-size: .95rem; padding: 2px 0; border-bottom: 2px solid transparent; }
+nav a:hover { color: #fff; }
+nav a[aria-current="page"] { color: #fff; border-color: #e9c57a; }
+.proto { font-size: .82rem; color: var(--muted); border-bottom: 1px solid var(--rule); padding: 8px 0; }
+.proto b { color: var(--red); font-weight: 700; letter-spacing: .06em; font-size: .75rem; margin-right: 8px; }
+
+main { padding: 36px 0 80px; }
+.kicker { font-family: var(--mono); font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--red); }
+.pagehead { display: grid; gap: 10px; margin-bottom: 30px; max-width: 70ch; }
+.pagehead h2 { font-size: clamp(1.7rem, 3.6vw, 2.4rem); }
+.pagehead p { color: var(--muted); }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.link { background: none; border: 0; padding: 0; color: var(--blue); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.link:hover { color: var(--red); }
+.btn { background: var(--blue); color: var(--paper); border: 0; padding: 10px 18px; font-weight: 700; }
+.btn:hover { background: var(--red); }
+.btn.line { background: none; color: var(--blue); box-shadow: inset 0 0 0 1px var(--blue); }
+.row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+.tag { font-family: var(--mono); font-size: .75rem; color: var(--muted); }
+.score { font-family: var(--mono); font-size: .85rem; }
+.score.good { color: var(--good); } .score.warn { color: var(--warn); } .score.bad { color: var(--bad); }
+
+/* ---------- курс: мазмұн беті ---------- */
+.intro { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 40px; align-items: center; margin-bottom: 44px; }
+.intro .big { font-family: var(--display); font-size: clamp(1.4rem, 2.6vw, 1.9rem); line-height: 1.3; }
+.intro .big em { font-style: normal; color: var(--red); }
+.intro .facts { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--ink); margin-top: 22px; }
+.intro .facts div { padding: 10px 0; }
+.intro .facts .n { font-family: var(--display); font-size: 1.8rem; color: var(--blue); display: block; }
+.intro .facts span { font-size: .85rem; color: var(--muted); }
+.intro figure { margin: 0; }
+.intro figcaption { font-size: .78rem; color: var(--muted); margin-top: 6px; }
+.toc { list-style: none; margin: 0; padding: 0; border-top: 2px solid var(--ink); }
+.toc li { border-bottom: 1px solid var(--rule); }
+.toc button { width: 100%; display: grid; grid-template-columns: 80px minmax(0, 1fr) 150px 110px; gap: 4px 20px; align-items: baseline; text-align: left; background: none; border: 0; padding: 18px 0; }
+.toc .no { font-family: var(--display); font-size: 2.4rem; color: var(--ochre); line-height: 1; }
+.toc h3 { font-size: 1.35rem; }
+.toc .era { color: var(--muted); font-size: .92rem; }
+.toc .st { text-align: right; }
+.toc button:hover h3 { color: var(--red); }
+.toc .prog { grid-column: 2 / -1; height: 2px; background: var(--rule); position: relative; }
+.toc .prog i { position: absolute; inset: 0 auto 0 0; background: var(--good); }
+
+/* ---------- бөлім беті: оқулық парағы ---------- */
+.lesson { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 56px; margin-top: 22px; }
+.lesson h2 { font-size: clamp(1.8rem, 4vw, 2.7rem); margin: 10px 0 20px; }
+.lesson .text { font-size: 1.15rem; line-height: 1.7; max-width: 62ch; }
+.lesson .text.drop::first-letter { font-family: var(--display); float: left; font-size: 3.6rem; line-height: .9; padding: 6px 10px 0 0; color: var(--red); }
+.margin { border-left: 1px solid var(--rule); padding-left: 24px; display: grid; gap: 28px; align-content: start; }
+.margin h3 { font-family: var(--mono); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.margin ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.terms { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 26px; padding-top: 16px; border-top: 1px dashed var(--rule); max-width: 62ch; }
+.terms b { font-family: var(--mono); font-size: .75rem; color: var(--muted); font-weight: 400; width: 100%; text-transform: uppercase; letter-spacing: .08em; }
+.terms span { font-style: italic; }
+.terms span + span::before { content: "·"; margin-right: 14px; color: var(--ochre); font-style: normal; }
+.later { color: var(--muted); font-size: .9rem; }
+
+/* ---------- карта ---------- */
+.atlas { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 36px; align-items: start; }
+.mapframe { border: 1px solid var(--ink); background: var(--land); padding: 6px; }
+.mapframe svg { display: block; width: 100%; height: auto; }
+.mapnote { font-size: .78rem; color: var(--muted); margin-top: 8px; }
+.pt { cursor: pointer; }
+.pt .mk { fill: var(--sheet); stroke: var(--ink); stroke-width: 1.5; }
+.pt.monument .mk { fill: var(--red); stroke: var(--sheet); }
+.pt.city .mk { fill: var(--ink); stroke: var(--sheet); }
+.pt.nature .mk { fill: var(--ochre); stroke: var(--sheet); }
+.pt.on .mk { stroke: var(--red); stroke-width: 3; }
+.pt text { font: 13px var(--body); fill: var(--ink); paint-order: stroke; stroke: var(--land); stroke-width: 4px; }
+.pt.on text { font-weight: 700; fill: var(--red); }
+.label { border-top: 3px solid var(--red); background: var(--sheet); padding: 18px 20px; box-shadow: 0 1px 0 var(--rule); }
+.label h3 { font-size: 1.5rem; margin: 8px 0 10px; }
+.legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: .82rem; color: var(--muted); margin-top: 10px; }
+.legend i { display: inline-block; width: 10px; height: 10px; margin-right: 6px; vertical-align: -1px; }
+.places { list-style: none; margin: 22px 0 0; padding: 0; columns: 2; column-gap: 18px; font-size: .92rem; }
+.places li { break-inside: avoid; padding: 3px 0; }
+.places .link[aria-current="true"] { color: var(--red); text-decoration-thickness: 2px; }
+
+/* ---------- уақыт таспасы ---------- */
+.filters { display: flex; flex-wrap: wrap; gap: 4px 18px; margin-bottom: 28px; font-size: .95rem; }
+.filters button { background: none; border: 0; padding: 2px 0; color: var(--muted); border-bottom: 2px solid transparent; }
+.filters button[aria-pressed="true"] { color: var(--ink); border-color: var(--red); }
+.chron { border-top: 2px solid var(--ink); }
+.ev { display: grid; grid-template-columns: 210px minmax(0, 1fr) 90px; gap: 6px 24px; padding: 16px 0; border-bottom: 1px solid var(--rule); align-items: baseline; }
+.ev .yr { font-family: var(--display); font-size: 1.4rem; color: var(--blue); }
+.ev h3 { font-family: var(--body); font-weight: 700; font-size: 1.05rem; }
+.ev p { color: var(--muted); }
+.ev .go { text-align: right; font-size: .9rem; }
+
+/* ---------- тапсырмалар ---------- */
+.sheet { background: var(--sheet); border: 1px solid var(--rule); padding: 28px clamp(18px, 4vw, 40px); max-width: 780px; }
+.sheet .top { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-bottom: 2px solid var(--ink); padding-bottom: 14px; margin-bottom: 8px; }
+.sheet select { background: none; border: 0; border-bottom: 1px solid var(--ink); padding: 4px 0; font-family: var(--display); font-size: 1.15rem; max-width: 100%; }
+fieldset { border: 0; margin: 0; padding: 22px 0; border-bottom: 1px dashed var(--rule); }
+legend { font-weight: 700; padding: 0; margin-bottom: 12px; display: flex; gap: 12px; }
+legend .mono { color: var(--ochre); font-weight: 400; }
+.opt { display: flex; gap: 12px; align-items: center; padding: 6px 8px; margin-left: 28px; cursor: pointer; }
+.opt input { accent-color: var(--blue); width: 17px; height: 17px; }
+.opt.right { background: color-mix(in srgb, var(--good) 14%, transparent); }
+.opt.right::after { content: "дұрыс"; margin-left: auto; font-family: var(--mono); font-size: .75rem; color: var(--good); }
+.opt.wrong { background: color-mix(in srgb, var(--bad) 12%, transparent); text-decoration: line-through; text-decoration-color: var(--bad); }
+textarea { width: calc(100% - 28px); margin-left: 28px; min-height: 120px; background: repeating-linear-gradient(transparent 0 29px, var(--rule) 29px 30px); line-height: 30px; border: 0; border-left: 2px solid var(--red); padding: 0 12px; }
+.crit { margin: 14px 0 0 28px; display: grid; gap: 6px; font-size: .95rem; }
+.crit p { font-family: var(--mono); font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+.crit label { display: flex; gap: 10px; }
+.submit { padding-top: 22px; }
+.result { font-weight: 700; }
+
+/* ---------- жобалар ---------- */
+.shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 36px 28px; }
+.proj { display: grid; gap: 8px; align-content: start; }
+.proj .cover { aspect-ratio: 4 / 3; background: var(--blue); position: relative; overflow: hidden; display: grid; align-content: end; padding: 14px; color: #f4f1e8; }
+.proj .cover svg { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .35; }
+.proj .cover span { position: relative; font-family: var(--mono); font-size: .75rem; }
+.proj h3 { font-size: 1.2rem; }
+.proj p { font-size: .92rem; color: var(--muted); }
+.stamp { display: inline-block; font-family: var(--mono); font-size: .7rem; letter-spacing: .1em; color: var(--red); border: 1px solid var(--red); padding: 1px 6px; transform: rotate(-2deg); }
+.aside-note { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--rule); color: var(--muted); max-width: 70ch; }
+
+/* ---------- мұғалім ---------- */
+.ledger { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 2px solid var(--ink); border-bottom: 1px solid var(--rule); margin-bottom: 34px; }
+.ledger div { padding: 14px 16px 16px 0; }
+.ledger div + div { border-left: 1px solid var(--rule); padding-left: 16px; }
+.ledger .n { font-family: var(--display); font-size: 2.2rem; display: block; line-height: 1.1; }
+.ledger small { color: var(--muted); font-size: .85rem; }
+.tablewrap { overflow-x: auto; margin-bottom: 40px; }
+table { border-collapse: collapse; width: 100%; min-width: 680px; font-variant-numeric: tabular-nums; }
+caption { text-align: left; font-family: var(--display); font-size: 1.3rem; padding-bottom: 12px; }
+caption .stamp { margin-left: 10px; vertical-align: 3px; }
+th, td { padding: 9px 10px; border-bottom: 1px solid var(--rule); text-align: left; font-size: .95rem; }
+thead th { font-family: var(--mono); font-size: .75rem; color: var(--muted); font-weight: 400; border-bottom: 1px solid var(--ink); }
+td.c, th.c { text-align: center; }
+td.c .cell { display: inline-block; min-width: 40px; padding: 1px 0; font-family: var(--mono); }
+.cell.good { color: var(--good); } .cell.warn { color: var(--warn); } .cell.bad { color: var(--bad); background: color-mix(in srgb, var(--bad) 10%, transparent); }
+
+@media (max-width: 860px) {
+  .intro, .lesson, .atlas { grid-template-columns: 1fr; gap: 28px; }
+  .margin { border-left: 0; padding-left: 0; border-top: 1px solid var(--rule); padding-top: 20px; }
+  .toc button { grid-template-columns: 56px minmax(0, 1fr); }
+  .toc .era, .toc .st { grid-column: 2; text-align: left; }
+  .toc .no { font-size: 1.8rem; grid-row: span 3; }
+  .ev { grid-template-columns: 1fr; }
+  .ev .go { text-align: left; }
+  .ledger { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ledger div:nth-child(3) { border-left: 0; padding-left: 0; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .toc .prog i { transition: width .5s ease; }
+  .pt .mk { transition: stroke-width .15s; }
+}
+</style>
+</head>
+<body>
+<header class="band">
+  <div class="ornament" aria-hidden="true">
+    <svg preserveAspectRatio="none" viewBox="0 0 1200 22"><defs>
+      <pattern id="horn" width="44" height="22" patternUnits="userSpaceOnUse">
+        <path d="M22 20V13c0-4-3-7-7-7s-6 3-5 6 4 3 5 1-1-3-2-2M22 13c0-4 3-7 7-7s6 3 5 6-4 3-5 1 1-3 2-2" fill="none" stroke="#c8473e" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M0 20h44" stroke="#c8473e" stroke-width="1"/>
+      </pattern></defs><rect width="1200" height="22" fill="url(#horn)"/></svg>
+  </div>
+  <div class="wrap">
+    <div class="mast">
+      <div>
+        <h1>Цифрлық мұра</h1>
+        <p class="sub">Ұлытау өңірінің тарихы · элективті курс · <b>34 сағат</b></p>
+      </div>
+      <div class="lvl" role="group" aria-label="Сынып деңгейі">
+        <span>Сынып</span>
+        <span id="levelSeg"><button data-level="a" aria-pressed="false">5–6</button><button data-level="b" aria-pressed="true">7–9</button><button data-level="c" aria-pressed="false">10–11</button></span>
+      </div>
+    </div>
+    <nav id="nav" aria-label="Платформа бөлімдері">
+      <a href="#course">Курс</a>
+      <a href="#map">Мұра картасы</a>
+      <a href="#timeline">Уақыт таспасы</a>
+      <a href="#tasks">Тапсырмалар</a>
+      <a href="#projects">Жобалар</a>
+      <a href="#teacher">Мұғалім кабинеті</a>
+    </nav>
+  </div>
+</header>
+<div class="proto"><div class="wrap"><b>ПРОТОТИП</b>Мәтіндер мен сұрақтар — мысал мазмұн. Оны бағдарлама авторы тексеріп, толықтырады.</div></div>
+
+<main class="wrap" id="view" aria-live="polite"></main>
+
+<script>
+/* ===================== МАЗМҰН ===================== */
+const LEVELS = { a: "5–6 сынып", b: "7–9 сынып", c: "10–11 сынып" };
+
+const SECTIONS = [
+  { id: 1, title: "Ежелгі Ұлытау: тас пен мыс", era: "Тас және қола дәуірі", hours: 5,
+    places: ["akmeshit", "zhez"],
+    terms: ["қола дәуірі", "Андронов мәдениеті", "кеніш", "археологиялық дерек"],
+    text: {
+      a: "Ұлытау — Сарыарқаның ортасындағы көне таулар. Мұнда адамдар өте ерте заманнан бері өмір сүрген. Ежелгі адамдар алдымен тастан құрал жасап, кейін мыс пен қалайыдан қола балқытуды үйренген. Жезқазған маңындағы ескі кеніштер соның дәлелі.",
+      b: "Ұлытау–Жезқазған өңірі тас дәуірінен бері қоныстанған. Қола дәуірінде (б.з.д. II мыңжылдық) мұнда мыс кені өндіріліп, балқытылған. Археологтар ежелгі кеніштер мен қорымдарды зерттеп, оларды Андронов мәдениетімен байланыстырады. Мыс өңірдің кейінгі тарихында да басты байлық болып қалды.",
+      c: "Өңірдің ежелгі тарихы археологиялық деректерге сүйенеді: тұрақтар, қорымдар, ежелгі кеніштердің іздері. Қола дәуірінде Жезқазған кендері Орталық Қазақстанның металлургия орталықтарының бірі болған деп саналады. Бұл бөлімде оқушы дерек түрлерін (заттай, жазба, ауызша) ажыратып, археологиялық қорытындының шектеулерін бағалайды."
+    } },
+  { id: 2, title: "Қаракеңгір бойындағы кесенелер", era: "Ерте ортағасыр", hours: 5,
+    places: ["dombauyl", "alasha"],
+    terms: ["кесене", "жерүсті ескерткіші", "аңыз", "этноним «алаша»"],
+    text: {
+      a: "Қаракеңгір өзенінің бойында екі көне кесене тұр: Домбауыл және Алаша хан кесенесі. Халық аңыздарында Алаша хан қазақ тайпаларын біріктірген билеуші ретінде айтылады, ал Домбауыл оның серігі болған деседі.",
+      b: "Домбауыл кесенесі VIII–X ғасырларға жатқызылады және Сарыарқадағы ең көне жерүсті құрылыстарының бірі саналады. Алаша хан кесенесі күйдірілген кірпіштен салынған, оның салынған уақыты туралы ғалымдардың пікірі әртүрлі. Екі ескерткіш те аңыздарда «Алаша» атауымен байланысты.",
+      c: "Алаша хан туралы аңыздар «алаша» этнонимінің шығуымен және халық бірлігі идеясымен байланысты. Тарихшы мұндай аңызды тікелей дерек ретінде емес, халық жадының көрінісі ретінде қарастырады. Кесенелердің мерзімін анықтау үшін сәулет ерекшеліктері, құрылыс материалы және қазба нәтижелері салыстырылады."
+    } },
+  { id: 3, title: "Жошы ұлысы", era: "XIII ғасыр", hours: 6,
+    places: ["jochi", "ulytau"],
+    terms: ["ұлыс", "Дешті Қыпшақ", "Алтын Орда", "әулет"],
+    text: {
+      a: "XIII ғасырда Шыңғыс ханның үлкен ұлы Жошы осы өңірді билеген. Оның кесенесі Кеңгір өзенінің жағасында сақталған. Ұлытау ол кезде маңызды ордалы мекен болған.",
+      b: "1220-жылдары Дешті Қыпшақтың үлкен бөлігі Жошы ұлысына берілді. Жошы 1227 жылы қайтыс болды, оның кесенесі Ұлытау өңірінде тұр. Кейін Жошы ұрпақтары Алтын Орданы басқарды, ал Ұлытау ұлыстың орталық аймақтарының бірі болды.",
+      c: "Жошы ұлысы Алтын Орда мен кейінгі Қазақ хандығы тарихының бастауы. Қазақ хандары Жошы әулетінен тараған, сондықтан Жошы хан кесенесі әулеттік сабақтастықтың символына айналды. Ескерткіштің мерзімі мен онда кім жерленгені туралы зерттеулер әлі жалғасып келеді."
+    } },
+  { id: 4, title: "Темір жазуы және хандық дәстүр", era: "XIV–XV ғасырлар", hours: 6,
+    places: ["altyn", "edige", "ulytau"],
+    terms: ["эпиграфика", "жорық", "ауызша дәстүр", "дерек сенімділігі"],
+    text: {
+      a: "1391 жылы Әмір Темір әскерімен Тоқтамыс ханға қарсы жорыққа шыққанда Ұлытау өңіріндегі Алтыншоқы тауында тасқа жазу қалдырған. Ұлытау тауларындағы Едіге тауы Алтын Орда әміршісі Едіге есімімен аталады.",
+      b: "Алтыншоқыдағы Темір жазуы өңір тарихының сирек жазба деректерінің бірі. Онда жорықтың уақыты мен мақсаты көрсетілген. XV ғасырда Алтын Орда ыдырап, Дешті Қыпшақта жаңа мемлекеттер пайда болды. Ауызша дәстүр Ұлытауды билеушілердің маңызды жиындары өткен киелі мекен ретінде сақтаған.",
+      c: "Темір жазуы эпиграфикалық дерек: мәтін ұйғыр және араб жазуларымен ойылған, тас қазір Санкт-Петербургтегі Эрмитажда сақтаулы. Оны Шараф ад-дин Әли Йездидің «Зафарнама» шығармасы сияқты жазба деректермен салыстыруға болады. Ауызша дәстүрдегі «Ұлытауда хан көтеру» туралы мәліметтерді жазба деректермен салыстырып, сенімділігін бағалау осы бөлімнің басты дағдысы."
+    } },
+  { id: 5, title: "XX ғасыр: мыс, ғылым, Кеңгір", era: "Кеңес кезеңі", hours: 7,
+    places: ["karsak", "zhez", "kengir", "satpayev"],
+    terms: ["индустрияландыру", "Степлаг", "ГУЛАГ", "куәгер естелігі"],
+    text: {
+      a: "Ұлы ғалым Қаныш Сәтбаев Жезқазғандағы мыс кенін зерттеп, оның үлкен байлық екенін дәлелдеді. Кейін мұнда кен орындары мен қалалар салынды. Сәтбаев қаласы оның есімімен аталады.",
+      b: "Қ. Сәтбаев 1926 жылдан бастап Жезқазған кен орнын зерттеп, оның ірі мыс қоры екенін дәлелдеді. Кеңес кезеңінде өңірде кен өндірісі мен өнеркәсіп дамыды. Сонымен қатар Жезқазған маңында Степлаг лагерлері орналасты, ал 1954 жылы Кеңгірде тұтқындардың ірі көтерілісі болды.",
+      c: "XX ғасыр өңір тарихына екі жақты із қалдырды: бір жағынан индустрияландыру мен ғылыми жетістіктер, екінші жағынан ГУЛАГ жүйесі мен мәжбүрлі еңбек. 1954 жылғы мамыр–маусымдағы Кеңгір көтерілісі 40 күнге жуық созылып, әскер күшімен басылды. Оқушы куәгерлердің естеліктері мен ресми құжаттарды салыстыра отырып, оқиғаны жан-жақты бағалайды."
+    } },
+  { id: 6, title: "Тәуелсіз Қазақстандағы Ұлытау", era: "1991 жылдан бүгінге дейін", hours: 5,
+    places: ["ulytau", "zhez", "satpayev"],
+    terms: ["киелі жерлер", "өңірлік тарих", "ауызша тарих", "жоба"],
+    text: {
+      a: "2022 жылы Ұлытау облысы құрылды, орталығы — Жезқазған қаласы. Ұлытау Қазақстанның киелі жерлерінің бірі, мұнда туристер мен зерттеушілер көп келеді.",
+      b: "Тәуелсіздік жылдарында өңірдің тарихи ескерткіштері қорғауға алынып, Қазақстанның киелі жерлерінің тізіміне енді. 2022 жылы Қарағанды облысының бір бөлігінен Ұлытау облысы құрылды. Бүгінгі өңірдің дамуы кен өндірісімен, туризммен және тарихи мұраны сақтаумен байланысты.",
+      c: "Курстың қорытынды мақсаты — өңірлік тарихтың ұлттық тарихпен байланысын талдау. Оқушы өз отбасының, мектебінің немесе қаласының тарихын зерттеп, сұхбат, архив құжаты, фото сияқты деректер жинайды. Қорытынды жоба «Цифрлық мұра» галереясында жарияланады."
+    } }
+];
+
+/* Координаттар шамамен берілген, схемалық карта үшін */
+const PLACES = {
+  akmeshit: { name: "Ақмешіт шыңы", lat: 48.80, lon: 67.10, sec: 1, kind: "nature",
+    text: "Ұлытау тауларының ең биік нүктесі (1133 м). Таулар Сарыарқаның ортасында орналасқан, ежелден қоныс пен жайылым болған." },
+  zhez: { name: "Жезқазған", lat: 47.79, lon: 67.71, sec: 5, kind: "city",
+    text: "Ұлытау облысының орталығы. Мыс кені қола дәуірінен өндірілген; XX ғасырда ірі өнеркәсіп орталығына айналды." },
+  dombauyl: { name: "Домбауыл кесенесі", lat: 47.99, lon: 67.45, sec: 2, kind: "monument",
+    text: "VIII–X ғасырларға жатқызылатын тас кесене, Сарыарқадағы ең көне жерүсті құрылыстарының бірі. Қаракеңгір өзенінің бойында." },
+  alasha: { name: "Алаша хан кесенесі", lat: 48.06, lon: 67.33, sec: 2, kind: "monument",
+    text: "Күйдірілген кірпіштен салынған кесене. Аңыз бойынша мұнда қазақ тайпаларын біріктірген Алаша хан жерленген. Мерзімі туралы пікірлер әртүрлі." },
+  jochi: { name: "Жошы хан кесенесі", lat: 48.10, lon: 67.95, sec: 3, kind: "monument",
+    text: "Кеңгір өзенінің жағасындағы XIII ғасыр ескерткіші. Шыңғыс ханның үлкен ұлы Жошымен байланыстырылады." },
+  ulytau: { name: "Ұлытау ауылы", lat: 48.65, lon: 67.00, sec: 6, kind: "city",
+    text: "Ұлытау ауданының орталығы, таулардың етегінде. Ауызша дәстүрде киелі мекен, ұлы жиындар өткен орын ретінде аталады." },
+  edige: { name: "Едіге тауы", lat: 48.72, lon: 66.86, sec: 4, kind: "nature",
+    text: "Ұлытау тауларының бірі, Алтын Орда әміршісі Едіге есімімен аталады. Едіге туралы жырлар қазақ эпосында сақталған." },
+  altyn: { name: "Алтыншоқы (Темір жазуы)", lat: 47.97, lon: 66.95, sec: 4, kind: "monument",
+    text: "1391 жылы Әмір Темірдің әскері тасқа жазу қалдырған жер. Түпнұсқа тас қазір Эрмитажда сақтаулы." },
+  karsak: { name: "Қарсақбай", lat: 47.84, lon: 66.74, sec: 5, kind: "city",
+    text: "XX ғасыр басындағы мыс балқыту зауыты орналасқан кент. Жезқазған кенін игеру тарихымен тығыз байланысты." },
+  satpayev: { name: "Сәтбаев", lat: 47.90, lon: 67.53, sec: 5, kind: "city",
+    text: "Кеншілер қаласы. 1990 жылы геолог, академик Қаныш Сәтбаевтың есімі берілді." },
+  kengir: { name: "Кеңгір (Степлаг)", lat: 47.72, lon: 67.60, sec: 5, kind: "monument",
+    text: "Степлаг лагерь бөлімшесі болған жер. 1954 жылы мамыр–маусымда мұнда тұтқындардың ірі көтерілісі болды." }
+};
+
+const EVENTS = [
+  { yr: "б.з.д. II мыңжылдық", sec: 1, t: "Жезқазған маңында мыс өндірісі", d: "Қола дәуірінің кеншілері мыс кенін өндіріп, балқытады." },
+  { yr: "VIII–X ғғ.", sec: 2, t: "Домбауыл кесенесі", d: "Сарыарқадағы ең көне жерүсті ескерткіштерінің бірі салынады." },
+  { yr: "XI–XIV ғғ.", sec: 2, t: "Алаша хан кесенесі", d: "Кесененің нақты мерзімі туралы ғалымдардың пікірі әртүрлі." },
+  { yr: "1220-жылдар", sec: 3, t: "Жошы ұлысы", d: "Дешті Қыпшақ жерлері Шыңғыс ханның үлкен ұлы Жошыға беріледі." },
+  { yr: "1227", sec: 3, t: "Жошының қайтыс болуы", d: "Кейін Кеңгір бойында Жошы хан кесенесі тұрғызылады." },
+  { yr: "1391", sec: 4, t: "Темір жазуы", d: "Тоқтамысқа қарсы жорық кезінде Алтыншоқыда тасқа жазу қалдырылады." },
+  { yr: "1926", sec: 5, t: "Сәтбаев Жезқазғанда", d: "Қ. Сәтбаев кен орнын жүйелі зерттеуді бастайды." },
+  { yr: "1954", sec: 5, t: "Кеңгір көтерілісі", d: "Степлаг тұтқындарының 40 күнге жуық созылған көтерілісі." },
+  { yr: "1990", sec: 5, t: "Сәтбаев қаласы", d: "Кеншілер қаласына академик Қ. Сәтбаевтың есімі беріледі." },
+  { yr: "1991", sec: 6, t: "Қазақстан тәуелсіздігі", d: "Өңір тарихын зерттеу мен ескерткіштерді қорғаудың жаңа кезеңі." },
+  { yr: "2022", sec: 6, t: "Ұлытау облысы", d: "Орталығы Жезқазған болатын Ұлытау облысы құрылады." }
+];
+
+/* level: a (5–6), b (7–9), c (10–11). open — ашық тапсырма, critera бойынша өзін-өзі бағалау */
+const TASKS = {
+  1: [
+    { level: "a", q: "Қола қандай металдардан алынады?", o: ["Мыс пен қалайы", "Темір мен алтын", "Күміс пен қорғасын"], a: 0 },
+    { level: "b", q: "Жезқазған маңындағы ежелгі кеніштер қай дәуірге жатады?", o: ["Темір дәуірі", "Қола дәуірі", "Жаңа заман"], a: 1 },
+    { level: "c", q: "Ежелгі кеніштің қалдықтары қай дерек түріне жатады?", o: ["Жазба дерек", "Ауызша дерек", "Заттай (археологиялық) дерек"], a: 2 },
+    { level: "c", open: true, q: "Археологиялық деректер тарихшыға қандай мүмкіндік береді және оның шектеуі қандай?", crit: ["Кемінде бір мүмкіндік көрсетілген", "Кемінде бір шектеу көрсетілген", "Ұлытау өңірінен мысал келтірілген"] }
+  ],
+  2: [
+    { level: "a", q: "Домбауыл мен Алаша хан кесенелері қай өзеннің бойында тұр?", o: ["Ертіс", "Қаракеңгір", "Сырдария"], a: 1 },
+    { level: "b", q: "Домбауыл кесенесі шамамен қай ғасырларға жатқызылады?", o: ["VIII–X ғасырлар", "XVI–XVII ғасырлар", "XIX ғасыр"], a: 0 },
+    { level: "c", q: "Тарихшы Алаша хан туралы аңызды қалай қарастырады?", o: ["Нақты оқиғаның дәл сипаттамасы ретінде", "Халық жадының көрінісі ретінде, басқа деректермен салыстырып", "Тарихқа қатысы жоқ ертегі ретінде"], a: 1 },
+    { level: "c", open: true, q: "Алаша хан кесенесінің мерзімін анықтау үшін қандай деректерді салыстырар едіңіз? Неліктен?", crit: ["Кемінде екі дерек түрі аталған", "Әр деректің мәні түсіндірілген", "Қорытынды жасалған"] }
+  ],
+  3: [
+    { level: "a", q: "Жошы кімнің ұлы болған?", o: ["Әмір Темірдің", "Абылай ханның", "Шыңғыс ханның"], a: 2 },
+    { level: "b", q: "Жошы қай жылы қайтыс болды?", o: ["1227", "1391", "1465"], a: 0 },
+    { level: "c", q: "Жошы хан кесенесі қазақ мемлекеттілігі тарихында неліктен маңызды?", o: ["Қазақ хандары Жошы әулетінен тараған", "Онда Қазақ хандығы жарияланған", "Ол өңірдегі ең көне кесене"], a: 0 },
+    { level: "c", open: true, q: "Жошы ұлысы мен Қазақ хандығы арасындағы сабақтастықты екі дәлелмен көрсетіңіз.", crit: ["Бірінші дәлел келтірілген", "Екінші дәлел келтірілген", "Дереккөзге сілтеме жасалған"] }
+  ],
+  4: [
+    { level: "a", q: "Ұлытау өңірінде тасқа жазу қалдырған кім?", o: ["Жошы", "Әмір Темір", "Қаныш Сәтбаев"], a: 1 },
+    { level: "b", q: "Темір жазуы қай жылы қалдырылған?", o: ["1227", "1954", "1391"], a: 2 },
+    { level: "c", q: "Темір жазуының түпнұсқасы қазір қайда сақтаулы?", o: ["Эрмитажда (Санкт-Петербург)", "Ұлытау ауылының мұражайында", "Британ мұражайында"], a: 0 },
+    { level: "c", open: true, q: "«Ұлытауда хан көтеру» туралы ауызша дәстүрдің сенімділігін қалай тексерер едіңіз?", crit: ["Салыстыруға болатын жазба дерек аталған", "Ауызша дәстүрдің ерекшелігі ескерілген", "Негізделген қорытынды жасалған"] }
+  ],
+  5: [
+    { level: "a", q: "Сәтбаев қаласы кімнің есімімен аталған?", o: ["Шоқан Уәлихановтың", "Қаныш Сәтбаевтың", "Әлихан Бөкейхановтың"], a: 1 },
+    { level: "b", q: "Кеңгір көтерілісі қай жылы болды?", o: ["1926", "1986", "1954"], a: 2 },
+    { level: "c", q: "Кеңгір көтерілісі шамамен қанша уақытқа созылды?", o: ["40 күнге жуық", "Бір күн", "Екі жыл"], a: 0 },
+    { level: "c", open: true, q: "Кеңгір көтерілісі туралы куәгер естелігі мен ресми құжаттың айырмашылығы неде болуы мүмкін?", crit: ["Естеліктің ерекшелігі көрсетілген", "Ресми құжаттың ерекшелігі көрсетілген", "Екеуін бірге қолдану қажеттігі түсіндірілген"] }
+  ],
+  6: [
+    { level: "a", q: "Ұлытау облысының орталығы қай қала?", o: ["Жезқазған", "Сәтбаев", "Қарағанды"], a: 0 },
+    { level: "b", q: "Ұлытау облысы қай жылы құрылды?", o: ["1991", "2022", "1997"], a: 1 },
+    { level: "c", q: "Ауызша тарих (сұхбат) қай дерек түріне жатады?", o: ["Заттай дерек", "Статистикалық дерек", "Ауызша дерек"], a: 2 },
+    { level: "c", open: true, q: "Отбасыңыздың немесе мектебіңіздің тарихы бойынша жоба жоспарын құрыңыз: тақырып, деректер, сұхбат сұрақтары.", crit: ["Тақырып нақты", "Кемінде үш дерек аталған", "Кемінде үш сұхбат сұрағы жазылған"] }
+  ]
+};
+
+const PROJECTS = [
+  { title: "Әжемнің естелігіндегі Жезқазған", grade: "7 сынып", type: "Ауызша тарих", sec: 6, d: "Сұхбат жазбасы, отбасылық фотолар және қаланың 1970-жылдардағы көріністері." },
+  { title: "Домбауыл кесенесінің сызбасы", grade: "6 сынып", type: "Модель", sec: 2, d: "Кесененің жоспары мен қимасы, құрылыс материалы туралы түсіндірме." },
+  { title: "Сәтбаев көшелері: атаулар тарихы", grade: "9 сынып", type: "Цифрлық карта", sec: 5, d: "Он көше атауының шығу тарихы, әр атауға қысқа анықтама." },
+  { title: "Кеңгір 1954: деректерді салыстыру", grade: "11 сынып", type: "Зерттеу жұмысы", sec: 5, d: "Куәгер естеліктері мен жарияланған құжаттарды салыстырмалы талдау." }
+];
+
+/* Мұғалім кабинеті: мысал сынып (жеке деректерсіз, оқушылар нөмірмен) */
+const DEMO_CLASS = { name: "7 «А» сынып", level: "b",
+  rows: [[92,88,75,80,null,null],[64,70,52,48,null,null],[100,95,90,85,null,null],[45,38,50,null,null,null],
+         [78,82,70,66,null,null],[88,90,84,79,null,null],[55,60,42,40,null,null],[70,74,68,72,null,null]] };
+
+
+/* ===================== КҮЙ ===================== */
+const store = {
+  get(k, d) { try { const v = localStorage.getItem("cm-" + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem("cm-" + k, JSON.stringify(v)); } catch (e) {} }
+};
+let level = store.get("level", "b");
+let progress = store.get("progress", {});
+let mapSel = null, tlFilter = 0, taskSec = 1;
+
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const secById = id => SECTIONS.find(s => s.id === id);
+const SHOW = { a: ["a"], b: ["a", "b"], c: ["b", "c"] };
+const tasksFor = id => TASKS[id].filter(t => SHOW[level].includes(t.level));
+const scoreOf = id => progress[id + "-" + level];
+const grade = v => v >= 70 ? "good" : v >= 50 ? "warn" : "bad";
+const roman = n => ["I", "II", "III", "IV", "V", "VI"][n - 1];
+
+/* ===================== КАРТА ===================== */
+const MAP = { w: 600, h: 700, lon0: 66.45, lon1: 68.25, lat0: 47.58, lat1: 48.98 };
+const px = (lat, lon) => [ (lon - MAP.lon0) / (MAP.lon1 - MAP.lon0) * MAP.w, (MAP.lat1 - lat) / (MAP.lat1 - MAP.lat0) * MAP.h ];
+const line = pts => "M" + pts.map(([la, lo]) => px(la, lo).map(v => v.toFixed(1)).join(" ")).join(" L");
+
+/* Біркелкі емес изосызықтар: шеңберді бірнеше синуспен бұрмалаймыз */
+function contours(lat, lon, rx, ry, rings, seed) {
+  const [cx, cy] = px(lat, lon); let out = "";
+  for (let k = 1; k <= rings; k++) {
+    const f = k / rings; let d = "";
+    for (let i = 0; i <= 72; i++) {
+      const t = i / 72 * Math.PI * 2;
+      const w = 1 + .13 * Math.sin(3 * t + seed) + .08 * Math.sin(5 * t + seed * 2) + .05 * Math.sin(9 * t + k);
+      d += (i ? "L" : "M") + (cx + Math.cos(t) * rx * f * w).toFixed(1) + " " + (cy + Math.sin(t) * ry * f * w).toFixed(1);
+    }
+    out += `<path d="${d}Z"/>`;
+  }
+  return out;
+}
+const RIVERS = [
+  { name: "Кеңгір", pts: [[48.62, 67.30], [48.42, 67.52], [48.24, 67.80], [48.08, 67.98], [47.92, 67.88], [47.83, 67.78]] },
+  { name: "Қаракеңгір", pts: [[48.50, 67.08], [48.30, 67.18], [48.12, 67.28], [48.02, 67.40], [47.92, 67.58], [47.82, 67.74]] }
+];
+function mapSVG(sel) {
+  const ids = Object.keys(PLACES);
+  const kmPx = MAP.h / ((MAP.lat1 - MAP.lat0) * 111);
+  const marker = (k, x, y) => k === "city" ? `<rect class="mk" x="${x - 5}" y="${y - 5}" width="10" height="10"/>`
+    : k === "nature" ? `<path class="mk" d="M${x} ${y - 7}L${x + 7} ${y + 5}H${x - 7}Z"/>`
+    : `<path class="mk" d="M${x} ${y - 7}L${x + 7} ${y}L${x} ${y + 7}L${x - 7} ${y}Z"/>`;
+  const pts = ids.map(id => {
+    const q = PLACES[id], [x, y] = px(q.lat, q.lon);
+    const flip = x > MAP.w - 200;
+    return `<g class="pt ${q.kind} ${id === sel ? "on" : ""}" data-place="${id}" tabindex="0" role="button" aria-label="${esc(q.name)}">
+      ${marker(q.kind, x, y)}<text x="${flip ? x - 12 : x + 12}" y="${y + 4}" text-anchor="${flip ? "end" : "start"}">${esc(q.name)}</text></g>`;
+  }).join("");
+  const grat = [];
+  for (let lat = 47.6; lat < 49; lat += 0.2) { const [, y] = px(lat, 0); grat.push(`<line x1="0" x2="${MAP.w}" y1="${y}" y2="${y}"/><text x="4" y="${y - 3}">${lat.toFixed(1)}°</text>`); }
+  for (let lon = 66.6; lon < 68.25; lon += 0.4) { const [x] = px(0, lon); grat.push(`<line y1="0" y2="${MAP.h}" x1="${x}" x2="${x}"/><text x="${x + 3}" y="${MAP.h - 6}">${lon.toFixed(1)}°</text>`); }
+  const [rx0, ry0] = px(47.83, 67.80);
+  return `<svg viewBox="0 0 ${MAP.w} ${MAP.h}" role="img" aria-label="Ұлытау өңірінің схемалық картасы">
+    <g stroke="var(--rule)" stroke-width=".8" fill="var(--muted)" style="font:10px var(--mono)">${grat.join("")}</g>
+    <g fill="none" stroke="var(--ochre)" stroke-width=".9" opacity=".75">${contours(48.72, 67.0, 150, 105, 6, 1.3)}${contours(47.97, 66.95, 55, 40, 3, 4.1)}${contours(48.35, 67.55, 45, 30, 2, 2.2)}</g>
+    <text x="${px(48.9, 66.62)[0]}" y="${px(48.9, 66.62)[1]}" fill="var(--ochre)" style="font:italic 15px var(--body);letter-spacing:.3em">ҰЛЫТАУ ТАУЛАРЫ</text>
+    <g fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".7">${RIVERS.map(r => `<path d="${line(r.pts)}"/>`).join("")}</g>
+    <ellipse cx="${rx0}" cy="${ry0}" rx="16" ry="7" fill="var(--blue)" opacity=".35"/>
+    ${RIVERS.map(r => { const [x, y] = px(...r.pts[1]); return `<text x="${x + 8}" y="${y - 6}" fill="var(--blue)" style="font:italic 12px var(--body)">${r.name}</text>`; }).join("")}
+    ${pts}
+    <g transform="translate(${MAP.w - 44} 44)" fill="var(--ink)" style="font:12px var(--mono)"><path d="M0 -24L7 4L0 -2L-7 4Z"/><text y="22" text-anchor="middle">С</text></g>
+    <g transform="translate(24 ${MAP.h - 34})" style="font:10px var(--mono)" fill="var(--ink)"><rect width="${20 * kmPx}" height="4"/><rect x="${10 * kmPx}" width="${10 * kmPx}" height="4" fill="var(--land)" stroke="var(--ink)"/><text y="-5">0</text><text x="${20 * kmPx}" y="-5" text-anchor="middle">20 км</text></g>
+  </svg>`;
+}
+
+/* ===================== КӨРІНІСТЕР ===================== */
+function viewCourse() {
+  const done = SECTIONS.filter(s => scoreOf(s.id) != null).length;
+  return `<div class="intro">
+    <div>
+      <p class="kicker">Курс бағдарламасы · ${LEVELS[level]}</p>
+      <p class="big" style="margin-top:12px">Ұлытау — Сарыарқаның ортасындағы көне таулар. Қола дәуірінің кеніштерінен <em>Жошы хан кесенесіне</em>, Темір жазуынан Кеңгірге дейін: өңір тарихы алты бөлімде.</p>
+      <div class="facts">
+        <div><span class="n">6</span><span>бөлім</span></div>
+        <div><span class="n">34</span><span>сағат</span></div>
+        <div><span class="n">${done}/6</span><span>тапсырма орындалды</span></div>
+      </div>
+    </div>
+    <figure><div class="mapframe">${mapSVG(null)}</div>
+      <figcaption>Курстағы 11 тарихи орын. Белгіні басыңыз немесе <button class="link" data-go="map">картаны ашыңыз</button>.</figcaption></figure>
+  </div>
+  <ol class="toc">${SECTIONS.map(s => {
+    const sc = scoreOf(s.id);
+    return `<li><button data-open="${s.id}">
+      <span class="no">${roman(s.id)}</span>
+      <h3>${esc(s.title)}</h3>
+      <span class="era">${esc(s.era)} · ${s.hours} сағат</span>
+      <span class="st">${sc == null ? '<span class="tag">басталмаған</span>' : `<span class="score ${grade(sc)}">${sc}%</span>`}</span>
+      <span class="prog"><i style="width:${sc || 0}%"></i></span>
+    </button></li>`; }).join("")}</ol>`;
+}
+
+function viewSection(id) {
+  const s = secById(id);
+  if (!s) return viewCourse();
+  const evs = EVENTS.filter(e => e.sec === id);
+  return `<button class="link" data-go="course">← Мазмұнға оралу</button>
+  <div class="lesson">
+    <article>
+      <p class="kicker">${roman(id)} бөлім · ${esc(s.era)} · ${LEVELS[level]}</p>
+      <h2>${esc(s.title)}</h2>
+      <p class="text ${/^[0-9]/.test(s.text[level]) ? "" : "drop"}">${esc(s.text[level])}</p>
+      <div class="terms"><b>Негізгі ұғымдар</b>${s.terms.map(t => `<span>${esc(t)}</span>`).join("")}</div>
+      <div class="row" style="margin-top:30px"><button class="btn" data-tasks="${id}">Тапсырмаларды орындау</button>
+        ${id < 6 ? `<button class="btn line" data-open="${id + 1}">${roman(id + 1)} бөлім →</button>` : ""}</div>
+    </article>
+    <aside class="margin">
+      <div><h3>Картада</h3><ul>${s.places.map(p => `<li><button class="link" data-place="${p}">${esc(PLACES[p].name)}</button></li>`).join("")}</ul></div>
+      <div><h3>Уақыт таспасында</h3><ul>${evs.map(e => `<li><span class="mono" style="color:var(--blue)">${esc(e.yr)}</span><br>${esc(e.t)}</li>`).join("")}</ul>
+        <button class="link" data-tl="${id}" style="margin-top:8px">Таспаны ашу</button></div>
+      <div><h3>ЖИ-көмекші</h3><p class="later">Екінші кезеңде қосылады: оқушының сұрағына мұғалім бекіткен мәтіндер негізінде жауап береді.</p></div>
+    </aside>
+  </div>`;
+}
+
+function viewMap() {
+  const ids = Object.keys(PLACES);
+  const sel = mapSel && PLACES[mapSel] ? mapSel : "jochi";
+  const p = PLACES[sel], s = secById(p.sec);
+  const kind = { monument: "Ескерткіш", city: "Елді мекен", nature: "Табиғи нысан" }[p.kind];
+  return `<div class="pagehead"><p class="kicker">Мұра картасы</p><h2>Ұлытау өңірінің тарихи орындары</h2>
+    <p>Белгіні басып, орын туралы оқыңыз. Әр орын курстың бір бөлімімен байланысты.</p></div>
+  <div class="atlas">
+    <div>
+      <div class="mapframe">${mapSVG(sel)}</div>
+      <div class="legend"><span><i style="background:var(--red);transform:rotate(45deg)"></i>ескерткіш</span><span><i style="background:var(--ink)"></i>елді мекен</span><span><i style="background:var(--ochre)"></i>табиғи нысан</span><span><i style="background:var(--blue);height:3px"></i>өзен</span></div>
+      <p class="mapnote">Схемалық карта: координаттар мен өзен арналары шамамен берілген. Сервердегі нұсқада OpenStreetMap картасы қолданылады.</p>
+    </div>
+    <div>
+      <div class="label">
+        <p class="kicker">${kind} · ${roman(p.sec)} бөлім</p>
+        <h3>${esc(p.name)}</h3>
+        <p>${esc(p.text)}</p>
+        <p class="tag" style="margin-top:12px">≈ ${p.lat.toFixed(2)}° с.е. · ${p.lon.toFixed(2)}° ш.б.</p>
+        <div style="margin-top:16px"><button class="btn" data-open="${p.sec}">«${esc(s.title)}» бөлімі</button></div>
+      </div>
+      <ul class="places">${ids.map(id => `<li><button class="link" data-place="${id}" ${id === sel ? 'aria-current="true"' : ""}>${esc(PLACES[id].name)}</button></li>`).join("")}</ul>
+    </div>
+  </div>`;
+}
+
+function viewTimeline() {
+  const list = EVENTS.filter(e => !tlFilter || e.sec === tlFilter);
+  return `<div class="pagehead"><p class="kicker">Уақыт таспасы</p><h2>Қола дәуірінен бүгінге дейін</h2>
+    <p>Өңір тарихының негізгі оқиғалары. Бөлім бойынша сүзуге болады.</p></div>
+  <div class="filters" role="group" aria-label="Бөлім сүзгісі">
+    <button data-tl="0" aria-pressed="${!tlFilter}">Барлығы</button>
+    ${SECTIONS.map(s => `<button data-tl="${s.id}" aria-pressed="${tlFilter === s.id}">${roman(s.id)}. ${esc(s.title)}</button>`).join("")}
+  </div>
+  <div class="chron">${list.map(e => `<div class="ev"><span class="yr">${esc(e.yr)}</span>
+    <div><h3>${esc(e.t)}</h3><p>${esc(e.d)}</p></div>
+    <span class="go"><button class="link" data-open="${e.sec}">${roman(e.sec)} бөлім</button></span></div>`).join("")}</div>`;
+}
+
+function viewTasks() {
+  const list = tasksFor(taskSec);
+  const sc = scoreOf(taskSec);
+  let n = 0;
+  return `<div class="pagehead"><p class="kicker">Тапсырмалар · ${LEVELS[level]}</p><h2>Өзіңді тексер</h2>
+    <p>Тест сұрақтары бірден тексеріледі. Ашық тапсырманы жазып, критерийлер бойынша өзіңіз бағалайсыз.</p></div>
+  <form id="quiz" class="sheet">
+    <div class="top"><label for="taskSel" class="tag" style="align-self:center">Бөлім</label>
+      <select id="taskSel">${SECTIONS.map(x => `<option value="${x.id}" ${x.id === taskSec ? "selected" : ""}>${roman(x.id)}. ${esc(x.title)}</option>`).join("")}</select>
+      <span class="score ${sc == null ? "" : grade(sc)}" style="align-self:center">${sc == null ? "әлі орындалмаған" : "соңғы нәтиже " + sc + "%"}</span></div>
+    ${list.map((t, i) => { n++; return t.open ? `
+      <fieldset><legend><span class="mono">${String(n).padStart(2, "0")}</span><span>Ашық тапсырма. ${esc(t.q)}</span></legend>
+        <textarea id="open-${i}" aria-label="Жауабыңыз"></textarea>
+        <div class="crit"><p>Өзін-өзі бағалау</p>${t.crit.map((c, j) => `<label><input type="checkbox" id="crit-${i}-${j}"> ${esc(c)}</label>`).join("")}</div>
+      </fieldset>` : `
+      <fieldset data-q="${i}"><legend><span class="mono">${String(n).padStart(2, "0")}</span><span>${esc(t.q)}</span></legend>
+        ${t.o.map((o, j) => `<label class="opt" for="q${i}-${j}"><input type="radio" name="q${i}" id="q${i}-${j}" value="${j}"> ${esc(o)}</label>`).join("")}
+      </fieldset>`; }).join("")}
+    <div class="row submit"><button class="btn" type="submit">Тексеру</button><span class="result" id="result"></span></div>
+  </form>
+  <p class="aside-note">Нәтиже тек осы құрылғыда сақталады. Мұғалімге жіберу серверлік нұсқада қосылады.</p>`;
+}
+
+function viewProjects() {
+  return `<div class="pagehead"><p class="kicker">Жобалар галереясы</p><h2>Оқушылардың зерттеу жұмыстары</h2>
+    <p>Курстың қорытынды жобалары осында жарияланады. Төмендегі төрт жұмыс — жобалардың қандай болатынын көрсететін мысалдар.</p></div>
+  <div class="shelf">${PROJECTS.map((p, i) => `<article class="proj">
+    <div class="cover" style="${i % 2 ? "background:var(--red)" : ""}"><svg viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g fill="none" stroke="#f4f1e8" stroke-width="1.1">${ringArt(i)}</g></svg><span>${esc(p.type)} · ${roman(p.sec)} бөлім</span></div>
+    <div class="row" style="gap:10px"><span class="stamp">МЫСАЛ</span><span class="tag">${esc(p.grade)}</span></div>
+    <h3>${esc(p.title)}</h3><p>${esc(p.d)}</p></article>`).join("")}</div>
+  <p class="aside-note">Оқушылардың файл жүктеуі және мұғалімнің жобаны бекітуі серверлік нұсқада қосылады (техникалық тапсырма, 5-бөлім).</p>`;
+}
+function ringArt(i) {
+  const cx = 60 + i * 30, cy = 70 + (i % 2) * 20; let out = "";
+  for (let k = 1; k <= 8; k++) { let d = ""; for (let a = 0; a <= 60; a++) { const t = a / 60 * Math.PI * 2, w = 1 + .15 * Math.sin(3 * t + i) + .07 * Math.sin(7 * t + k); d += (a ? "L" : "M") + (cx + Math.cos(t) * k * 16 * w).toFixed(1) + " " + (cy + Math.sin(t) * k * 11 * w).toFixed(1); } out += `<path d="${d}Z"/>`; }
+  return out;
+}
+
+function viewTeacher() {
+  const rows = DEMO_CLASS.rows;
+  const mean = r => { const v = r.filter(x => x != null); return v.reduce((a, b) => a + b, 0) / v.length; };
+  const all = rows.flat().filter(v => v != null);
+  const avg = Math.round(all.reduce((a, b) => a + b, 0) / all.length);
+  const support = rows.filter(r => mean(r) < 60).length;
+  const cell = v => v == null ? `<td class="c"><span class="cell" style="color:var(--rule)">·</span></td>` : `<td class="c"><span class="cell ${grade(v)}">${v}</span></td>`;
+  const mine = SECTIONS.map(s => ["a", "b", "c"].map(l => progress[s.id + "-" + l]));
+  return `<div class="pagehead"><p class="kicker">Мұғалім кабинеті</p><h2>Сынып журналы</h2>
+    <p>Бөлімдер бойынша нәтиже және әр оқушыға ұсынылатын деңгей. Оқушылар аты-жөнінсіз, нөмірмен көрсетіледі.</p></div>
+  <div class="ledger">
+    <div><small>Орташа нәтиже</small><span class="n">${avg}%</span></div>
+    <div><small>Өтілген бөлім</small><span class="n">4 / 6</span></div>
+    <div><small>Қолдау қажет</small><span class="n" style="color:var(--bad)">${support}</span><small>орташа нәтиже 60%-дан төмен</small></div>
+    <div><small>Сынып деңгейі</small><span class="n" style="font-size:1.5rem;padding-top:8px">${LEVELS[DEMO_CLASS.level]}</span></div>
+  </div>
+  <div class="tablewrap"><table><caption>${esc(DEMO_CLASS.name)}<span class="stamp">МЫСАЛ ДЕРЕКТЕР</span></caption>
+    <thead><tr><th>Оқушы</th>${SECTIONS.map(s => `<th class="c" title="${esc(s.title)}">${roman(s.id)}</th>`).join("")}<th class="c">Орташа</th><th>Ұсыныс</th></tr></thead>
+    <tbody>${rows.map((r, i) => { const m = Math.round(mean(r));
+      return `<tr><td class="mono">№ ${String(i + 1).padStart(2, "0")}</td>${r.map(cell).join("")}${cell(m)}<td>${m < 60 ? "5–6 деңгейлі мәтінмен қайталау" : m >= 85 ? "10–11 деңгейлі тапсырма беру" : "Жоспар бойынша"}</td></tr>`; }).join("")}</tbody></table></div>
+  <div class="tablewrap"><table><caption>Осы құрылғыдағы нәтижелер</caption>
+    <thead><tr><th>Бөлім</th>${Object.values(LEVELS).map(l => `<th class="c">${l}</th>`).join("")}</tr></thead>
+    <tbody>${SECTIONS.map((s, i) => `<tr><td>${roman(s.id)}. ${esc(s.title)}</td>${mine[i].map(cell).join("")}</tr>`).join("")}</tbody></table>
+    <button class="link" id="reset" style="margin-top:14px">Нәтижелерді тазалау</button></div>`;
+}
+
+/* ===================== МАРШРУТ ===================== */
+const VIEWS = { course: viewCourse, map: viewMap, timeline: viewTimeline, tasks: viewTasks, projects: viewProjects, teacher: viewTeacher };
+function route() {
+  const h = (location.hash || "#course").slice(1);
+  const m = h.match(/^section-(\d)$/);
+  const tab = m ? "course" : (VIEWS[h] ? h : "course");
+  $("#view").innerHTML = m ? viewSection(+m[1]) : VIEWS[tab]();
+  document.querySelectorAll("#nav a").forEach(a => { if (a.getAttribute("href") === "#" + tab) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+}
+const go = h => { if (location.hash === "#" + h) route(); else location.hash = h; window.scrollTo(0, 0); };
+
+document.addEventListener("click", e => {
+  const t = e.target.closest("button, [data-place]");
+  if (!t) return;
+  if (t.dataset.level) { level = t.dataset.level; store.set("level", level); syncLevel(); route(); return; }
+  if (t.dataset.open) return go("section-" + t.dataset.open);
+  if (t.dataset.tasks) { taskSec = +t.dataset.tasks; return go("tasks"); }
+  if (t.dataset.place) { mapSel = t.dataset.place; return (location.hash === "#map" ? route() : go("map")); }
+  if (t.dataset.tl != null) { tlFilter = +t.dataset.tl; return (location.hash === "#timeline" ? route() : go("timeline")); }
+  if (t.dataset.go) return go(t.dataset.go);
+  if (t.id === "reset") { progress = {}; store.set("progress", progress); route(); }
+});
+document.addEventListener("keydown", e => {
+  const g = e.target.closest && e.target.closest("g[data-place]");
+  if (g && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); mapSel = g.dataset.place; location.hash === "#map" ? route() : go("map"); }
+});
+document.addEventListener("change", e => { if (e.target.id === "taskSel") { taskSec = +e.target.value; route(); } });
+document.addEventListener("submit", e => {
+  if (e.target.id !== "quiz") return;
+  e.preventDefault();
+  let got = 0, max = 0;
+  tasksFor(taskSec).forEach((t, i) => {
+    if (t.open) { t.crit.forEach((_, j) => { max++; if ($("#crit-" + i + "-" + j).checked) got++; }); return; }
+    max++;
+    const fs = $(`fieldset[data-q="${i}"]`), picked = fs.querySelector("input:checked");
+    fs.querySelectorAll(".opt").forEach((l, j) => { l.classList.remove("right", "wrong"); if (j === t.a) l.classList.add("right"); else if (picked && +picked.value === j) l.classList.add("wrong"); });
+    if (picked && +picked.value === t.a) got++;
+  });
+  const pct = Math.round(got / max * 100);
+  progress[taskSec + "-" + level] = pct; store.set("progress", progress);
+  $("#result").textContent = `${got} / ${max} · ${pct}%. ` + (pct >= 70 ? "Келесі бөлімге өтуге болады." : "Бөлім мәтінін қайта оқып шығыңыз.");
+});
+function syncLevel() { document.querySelectorAll("#levelSeg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.level === level)); }
+window.addEventListener("hashchange", route);
+syncLevel(); route();
+</script>
+</body>
+</html>
